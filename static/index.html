@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>건설안전지침 RAG 시스템</title>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .chat-container {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .chat-messages {
+            height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .message {
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            border-radius: 18px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+        .user-message {
+            background-color: #e3f2fd;
+            margin-left: auto;
+            border-bottom-right-radius: 5px;
+        }
+        .bot-message {
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+            margin-right: auto;
+            border-bottom-left-radius: 5px;
+        }
+        .input-area {
+            display: flex;
+            padding: 15px;
+            background-color: #fff;
+            border-top: 1px solid #ddd;
+        }
+        #user-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+            font-size: 16px;
+        }
+        #send-button {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 10px 20px;
+            margin-left: 10px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        #send-button:hover {
+            background-color: #45a049;
+        }
+        .thinking {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+            display: none;
+        }
+        .sources {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+            display: none;
+        }
+        .toggle-button {
+            background: none;
+            border: none;
+            color: #2196F3;
+            cursor: pointer;
+            font-size: 12px;
+            padding: 0;
+            margin-top: 5px;
+            text-decoration: underline;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+        .loading-spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(0,0,0,0.1);
+            border-radius: 50%;
+            border-top-color: #4caf50;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <h1></h1>
+    <div class="chat-container">
+        <div class="chat-messages" id="chat-messages">
+        </div>
+        <div class="input-area">
+            <input type="text" id="user-input" placeholder="질문을 입력하세요..." autocomplete="off">
+            <button id="send-button">전송</button>
+        </div>
+    </div>
+
+    <script>
+        // 시스템 설정 변수 (기본값)
+        let SYSTEM_TITLE = '건설안전지침 RAG 시스템';
+        let INITIAL_MESSAGE = '안녕하세요! 건설 안전 지침에 관한 질문이 있으시면 언제든지 물어보세요.';
+
+        // 페이지 로드 시 설정 로드 및 초기화
+        document.addEventListener('DOMContentLoaded', async function() {
+            // 서버에서 설정 가져오기
+            try {
+                const response = await fetch('/api/config');
+                if (response.ok) {
+                    const config = await response.json();
+                    SYSTEM_TITLE = config.system_title;
+                    INITIAL_MESSAGE = config.initial_message;
+                }
+            } catch (error) {
+                console.error('설정을 불러오는데 실패했습니다:', error);
+            }
+
+            // 제목 설정
+            document.title = SYSTEM_TITLE;
+            document.querySelector('h1').textContent = SYSTEM_TITLE;
+
+            const chatMessages = document.getElementById('chat-messages');
+            const userInput = document.getElementById('user-input');
+            const sendButton = document.getElementById('send-button');
+
+            // 초기 메시지 설정
+            const initialMessageDiv = document.createElement('div');
+            initialMessageDiv.className = 'message bot-message';
+            initialMessageDiv.textContent = INITIAL_MESSAGE;
+            chatMessages.appendChild(initialMessageDiv);
+
+            // 메시지 전송 함수
+            function sendMessage() {
+                const message = userInput.value.trim();
+                if (message === '') return;
+
+                // 사용자 메시지 추가
+                addMessage(message, 'user');
+                userInput.value = '';
+
+                // 로딩 표시
+                const loadingDiv = document.createElement('div');
+                loadingDiv.className = 'loading';
+                loadingDiv.innerHTML = '<div class="loading-spinner"></div>';
+                chatMessages.appendChild(loadingDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                // API 호출
+                fetch('/api/query', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ query: message }),
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('API 요청 실패');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // 로딩 제거
+                    chatMessages.removeChild(loadingDiv);
+                    
+                    // 봇 응답 추가
+                    addBotResponse(data);
+                })
+                .catch(error => {
+                    // 로딩 제거
+                    chatMessages.removeChild(loadingDiv);
+                    
+                    // 에러 메시지 추가
+                    const errorMessage = document.createElement('div');
+                    errorMessage.className = 'message bot-message';
+                    errorMessage.textContent = '죄송합니다. 요청을 처리하는 중 오류가 발생했습니다.';
+                    chatMessages.appendChild(errorMessage);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                    
+                    console.error('Error:', error);
+                });
+            }
+
+            // 메시지 추가 함수
+            function addMessage(text, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${sender}-message`;
+                messageDiv.textContent = text;
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            // 봇 응답 추가 함수 (사고 과정 및 출처 포함)
+            function addBotResponse(data) {
+                // 메인 응답
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message bot-message';
+                messageDiv.textContent = data.answer;
+                
+                // 사고 과정 토글 버튼 및 내용
+                if (data.thinking) {
+                    const thinkingButton = document.createElement('button');
+                    thinkingButton.className = 'toggle-button';
+                    thinkingButton.textContent = '사고 과정 보기';
+                    
+                    const thinkingDiv = document.createElement('div');
+                    thinkingDiv.className = 'thinking';
+                    thinkingDiv.textContent = data.thinking;
+                    
+                    thinkingButton.addEventListener('click', function() {
+                        if (thinkingDiv.style.display === 'none' || !thinkingDiv.style.display) {
+                            thinkingDiv.style.display = 'block';
+                            thinkingButton.textContent = '사고 과정 숨기기';
+                        } else {
+                            thinkingDiv.style.display = 'none';
+                            thinkingButton.textContent = '사고 과정 보기';
+                        }
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                    });
+                    
+                    messageDiv.appendChild(document.createElement('br'));
+                    messageDiv.appendChild(thinkingButton);
+                    messageDiv.appendChild(thinkingDiv);
+                }
+                
+                // 출처 토글 버튼 및 내용
+                if (data.documents && data.documents.length > 0) {
+                    const sourcesButton = document.createElement('button');
+                    sourcesButton.className = 'toggle-button';
+                    sourcesButton.textContent = '참고 문서 보기';
+                    
+                    const sourcesDiv = document.createElement('div');
+                    sourcesDiv.className = 'sources';
+                    
+                    const sourcesList = document.createElement('ul');
+                    data.documents.forEach(source => {
+                        const sourceItem = document.createElement('li');
+                        sourceItem.textContent = source;
+                        sourcesList.appendChild(sourceItem);
+                    });
+                    
+                    sourcesDiv.appendChild(sourcesList);
+                    
+                    sourcesButton.addEventListener('click', function() {
+                        if (sourcesDiv.style.display === 'none' || !sourcesDiv.style.display) {
+                            sourcesDiv.style.display = 'block';
+                            sourcesButton.textContent = '참고 문서 숨기기';
+                        } else {
+                            sourcesDiv.style.display = 'none';
+                            sourcesButton.textContent = '참고 문서 보기';
+                        }
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                    });
+                    
+                    if (data.thinking) {
+                        messageDiv.appendChild(document.createElement('br'));
+                    }
+                    messageDiv.appendChild(sourcesButton);
+                    messageDiv.appendChild(sourcesDiv);
+                }
+                
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            // 이벤트 리스너 등록
+            sendButton.addEventListener('click', sendMessage);
+            userInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+        });
+    </script>
+</body>
+</html> 
