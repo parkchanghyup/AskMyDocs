@@ -2,6 +2,10 @@
 
 이 프로젝트는 Documents에 기반하여 답변하는 RAG API를 FastAPI를 사용하여 구현한 것입니다.
 
+## Project Architecture
+
+![아키텍쳐](./image/img.png)
+
 ## 기능
 
 - PDF, txt, word 등의 문서를 벡터 데이터베이스에 저장
