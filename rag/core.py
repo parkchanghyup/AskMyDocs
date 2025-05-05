@@ -9,8 +9,7 @@ import glob
 from dotenv import load_dotenv
 from openai import OpenAI
 from dotenv import load_dotenv
-
-
+import shutil
 
 # LangChain imports
 from langchain_core.documents import Document
@@ -422,4 +421,9 @@ def run_rag(query: str, rag_app):
         "thinking": result["thinking"],
         "need_retrieval": result["need_retrieval"],
         "documents": [doc.metadata.get("source", "알 수 없는 출처") for doc in result.get("documents", [])] if result["need_retrieval"] else []
-    } 
+    }
+
+def delete_vectorstore():
+    chroma_path = "./chroma_db"
+    if os.path.exists(chroma_path):
+        shutil.rmtree(chroma_path)  # 디렉토리 전체 삭제
