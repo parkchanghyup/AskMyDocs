@@ -7,7 +7,7 @@ import os
 from dotenv import load_dotenv
 
 # Import RAG components
-from rag.core import create_rag_graph, run_rag, load_vectorstore
+from rag.core import create_rag_graph, run_rag, load_vectorstore, load_documents, create_vector_store, delete_vectorstore
 from rag.models import QueryRequest, QueryResponse
 
 # Load environment variables
