@@ -8,6 +8,9 @@ import json
 import glob
 from dotenv import load_dotenv
 from openai import OpenAI
+from dotenv import load_dotenv
+
+
 
 # LangChain imports
 from langchain_core.documents import Document
@@ -54,7 +57,7 @@ class RAGState(TypedDict):
     need_retrieval: bool
 
 # 문서 로딩 함수
-def load_documents(directory="data/건설안전지침", limit=10):
+def load_documents(directory="./data", limit=10):
     """PDF 문서들을 로드하는 함수 (DoclingLoader 사용)"""
     documents = []
     pdf_files = glob.glob(os.path.join(directory, "*.pdf"))
