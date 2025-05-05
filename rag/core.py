@@ -125,6 +125,8 @@ def create_vector_store(documents, persist_directory="./chroma_db"):
     embeddings = HuggingFaceEmbeddings(
         model_name="jhgan/ko-sroberta-multitask",
         model_kwargs={'device': 'cpu'},
+        model_name="baai/bge-m3",
+        model_kwargs={'device': 'cuda'},
         encode_kwargs={'normalize_embeddings': True}
     )
     
