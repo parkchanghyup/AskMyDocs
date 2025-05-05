@@ -114,6 +114,7 @@
             to { transform: rotate(360deg); }
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
     <h1></h1>
@@ -222,10 +223,10 @@
 
             // 봇 응답 추가 함수 (사고 과정 및 출처 포함)
             function addBotResponse(data) {
-                // 메인 응답
                 const messageDiv = document.createElement('div');
                 messageDiv.className = 'message bot-message';
-                messageDiv.textContent = data.answer;
+                // 마크다운을 HTML로 변환하여 삽입
+                messageDiv.innerHTML = marked.parse(data.answer);
                 
                 // 사고 과정 토글 버튼 및 내용
                 if (data.thinking) {
@@ -235,7 +236,7 @@
                     
                     const thinkingDiv = document.createElement('div');
                     thinkingDiv.className = 'thinking';
-                    thinkingDiv.textContent = data.thinking;
+                    thinkingDiv.innerHTML = marked.parse(data.thinking.replace(/\n/g, '  \n'));
                     
                     thinkingButton.addEventListener('click', function() {
                         if (thinkingDiv.style.display === 'none' || !thinkingDiv.style.display) {
