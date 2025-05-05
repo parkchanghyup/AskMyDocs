@@ -123,8 +123,6 @@ def create_vector_store(documents, persist_directory="./chroma_db"):
     
     # 임베딩 모델 설정 (한국어에 적합한 모델 사용)
     embeddings = HuggingFaceEmbeddings(
-        model_name="jhgan/ko-sroberta-multitask",
-        model_kwargs={'device': 'cpu'},
         model_name="baai/bge-m3",
         model_kwargs={'device': 'cuda'},
         encode_kwargs={'normalize_embeddings': True}
@@ -144,7 +142,7 @@ def load_vectorstore(persist_directory="./chroma_db"):
     """기존 벡터 스토어를 로드하는 함수"""
     embeddings = HuggingFaceEmbeddings(
         model_name="jhgan/ko-sroberta-multitask",
-        model_kwargs={'device': 'cpu'},
+        model_kwargs={'device': 'cuda'},
         encode_kwargs={'normalize_embeddings': True}
     )
     
