@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
@@ -6,17 +6,17 @@ import uvicorn
 import os
 from dotenv import load_dotenv
 
-# Import RAG components
-from rag.core import create_rag_graph, run_rag, load_vectorstore, load_documents, create_vector_store, delete_vectorstore
-from rag.models import QueryRequest, QueryResponse
+# Import RAG components from the new modular structure
+from rag import RAGSystem
+from rag.models.schemas import QueryRequest, QueryResponse
 
 # Load environment variables
 load_dotenv()
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="건설안전지침 RAG API",
-    description="건설 안전 지침에 관한 질문에 답변하는 RAG(Retrieval-Augmented Generation) API",
+    title="RAG API",
+    description="문서와 관련된 질문에 답변하는 RAG(Retrieval-Augmented Generation) API",
     version="1.0.0"
 )
 
@@ -32,25 +32,14 @@ app.add_middleware(
 # Mount static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# Initialize RAG application on startup
+# Initialize RAG system on startup
 @app.on_event("startup")
 async def startup_event():
-    # 기존 벡터 스토어 제거
-    try:
-        print("Checking for existing vector store...")
-        delete_vectorstore()  # 기존 벡터 스토어 삭제
-        print("Existing vector store deleted successfully!")
-    except Exception as e:
-        print(f"No existing vector store found or failed to delete: {e}")
-
-    # 새로운 벡터 스토어 생성
-    print("Creating new vector store...")
-    documents = load_documents()
-    app.state.vectorstore = create_vector_store(documents)
-    print("Vector store created successfully!")
-
-    app.state.rag_app = create_rag_graph(app.state.vectorstore)
-    print("RAG application initialized!")
+    print("Initializing RAG system...")
+    # Reset vector store on startup
+    app.state.rag_system = RAGSystem()
+    # app.state.rag_system.reset_vectorstore()
+    print("RAG system initialized!")
 
 # Root endpoint - redirect to the HTML interface
 @app.get("/")
@@ -67,7 +56,7 @@ async def query_rag(request: QueryRequest):
         raise HTTPException(status_code=400, detail="Query cannot be empty")
     
     try:
-        result = run_rag(request.query, app.state.rag_app)
+        result = app.state.rag_system.process_query(request.query)
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error processing query: {str(e)}")

@@ -1,23 +1,17 @@
+"""Pydantic schemas for the RAG API."""
+
 from pydantic import BaseModel, Field
-from typing import List, Optional, Dict, Any
+from typing import List, Optional
+
 
 class QueryRequest(BaseModel):
-    """
-    Request model for querying the RAG system
-    """
-    query: str = Field(..., description="The user's query to process")
+    """Request model for query API endpoint."""
+    query: str = Field(..., description="User query string", examples=["건설 현장 안전 조치는 어떤 것들이 있나요?"])
 
-class DocumentInfo(BaseModel):
-    """
-    Information about a document retrieved from the vector store
-    """
-    source: str = Field(..., description="The source of the document")
 
 class QueryResponse(BaseModel):
-    """
-    Response model for the RAG system query
-    """
-    answer: str = Field(..., description="The generated answer to the query")
-    thinking: str = Field(..., description="The reasoning process behind the answer")
+    """Response model for query API endpoint."""
+    answer: str = Field(..., description="Generated answer to the query")
+    thinking: str = Field(..., description="Reasoning process of the RAG system")
     need_retrieval: bool = Field(..., description="Whether document retrieval was needed")
-    documents: Optional[List[str]] = Field(None, description="List of document sources used for retrieval") 
+    documents: Optional[List[str]] = Field(default=[], description="Source documents used for the answer") 

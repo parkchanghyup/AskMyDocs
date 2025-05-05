@@ -1,3 +1,5 @@
-from rag.models.schemas import QueryRequest, QueryResponse, DocumentInfo
+"""Models package for the RAG system."""
 
-__all__ = ["QueryRequest", "QueryResponse", "DocumentInfo"] 
+from rag.models.schemas import QueryRequest, QueryResponse
+
+__all__ = ["QueryRequest", "QueryResponse"] 
