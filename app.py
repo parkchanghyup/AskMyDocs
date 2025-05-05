@@ -35,20 +35,20 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 # Initialize RAG application on startup
 @app.on_event("startup")
 async def startup_event():
-    # Load or create vector store
+    # 기존 벡터 스토어 제거
     try:
-        print("Loading existing vector store...")
-        app.state.vectorstore = load_vectorstore()
-        print("Vector store loaded successfully!")
+        print("Checking for existing vector store...")
+        delete_vectorstore()  # 기존 벡터 스토어 삭제
+        print("Existing vector store deleted successfully!")
     except Exception as e:
-        print(f"Failed to load vector store: {e}")
-        from rag.core import load_documents, create_vector_store
-        print("Creating new vector store...")
-        documents = load_documents()
-        app.state.vectorstore = create_vector_store(documents)
-        print("Vector store created successfully!")
-    
-    # Create RAG graph
+        print(f"No existing vector store found or failed to delete: {e}")
+
+    # 새로운 벡터 스토어 생성
+    print("Creating new vector store...")
+    documents = load_documents()
+    app.state.vectorstore = create_vector_store(documents)
+    print("Vector store created successfully!")
+
     app.state.rag_app = create_rag_graph(app.state.vectorstore)
     print("RAG application initialized!")
 
