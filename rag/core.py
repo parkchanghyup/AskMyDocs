@@ -139,12 +139,12 @@ def create_vector_store(documents, persist_directory="./chroma_db"):
 # 기존 벡터 스토어 로드 함수
 def load_vectorstore(persist_directory="./chroma_db"):
     """기존 벡터 스토어를 로드하는 함수"""
+    # 임베딩 모델 설정
     embeddings = HuggingFaceEmbeddings(
-        model_name="jhgan/ko-sroberta-multitask",
+        model_name="baai/bge-m3",
         model_kwargs={'device': 'cuda'},
         encode_kwargs={'normalize_embeddings': True}
     )
-    
     vectorstore = Chroma(
         persist_directory=persist_directory,
         embedding_function=embeddings
@@ -223,7 +223,7 @@ general_prompt = """
 """
 
 # 체인 초기화
-query_analyzer_chain = create_gemini_chain(query_analyzer_prompt)
+query_analyzer_chain = create_gemini_chain(formatted_prompt)
 
 # RAG 체인 초기화
 def create_rag_chain():
