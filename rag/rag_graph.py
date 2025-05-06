@@ -64,7 +64,7 @@ def analyze_query(state: RAGState) -> RAGState:
             reasoning = "JSON 파싱 실패, 기본적으로 검색 수행"
     
     # Update state
-    state["thinking"] = f"검색 필요 여부: {need_retrieval}, 이유: {reasoning}"
+    state["thinking"] = f"Need to search?: {need_retrieval} \n Reasoning: {reasoning}"
     state["need_retrieval"] = need_retrieval
     
     return state
