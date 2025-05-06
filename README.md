@@ -27,11 +27,22 @@ A Retrieval-Augmented Generation (RAG) system that allows you to ask questions a
 │   │   └── prompts.py       # Prompt templates
 │   ├── document_processor.py # Document loading and processing
 │   ├── llm_chain.py         # LLM chain functionality
-│   └── rag_graph.py         # RAG workflow graph
-├── data/                    # Directory for PDF documents
+│   ├── rag_graph.py         # RAG workflow graph
+│   ├── models/
+│   │   ├── __init__.py
+│   │   └── schemas.py       # Data schemas
+│   └── utils/
+│       └── __init__.py
+├── app.py                  # Web application entry point
+├── run.py                  # Script to run the system
+├── static/
+│   └── index.html          # Web interface
+├── image/                  # Image resources
+│   └── img.png             # Architecture diagram
+├── data/                   # Directory for PDF documents
 ├── chroma_db/              # Vector store directory
 ├── requirements.txt        # Project dependencies
-└── README.md              # This file
+└── README.md               # This file
 ```
 
 ## Installation
@@ -90,4 +101,3 @@ The system can be configured through:
 1. Environment variables in `.env`
 2. Constants in `rag/config/constants.py`
 3. Prompts in `rag/config/prompts.py`
-````
