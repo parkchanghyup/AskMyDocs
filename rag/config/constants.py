@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # API Configuration
-API_KEY = os.environ.get("GEMINI_API_KEY", "AIzaSyBwX8l84Jm5G1uD0TiX3GT8iI47BgqrLYU")
+API_KEY = os.environ.get("GEMINI_API_KEY")
 BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
 MODEL_NAME = "models/" + os.environ.get("GEMINI_MODEL_NAME", "gemini-2.0-flash-001")
 
