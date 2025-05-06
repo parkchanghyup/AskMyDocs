@@ -74,8 +74,8 @@ async def get_config():
     Get configuration from environment variables
     """
     return {
-        "system_title": os.getenv("SYSTEM_TITLE", "건설안전지침 RAG 시스템"),
-        "initial_message": os.getenv("INITIAL_MESSAGE", "안녕하세요! 건설 안전 지침에 관한 질문이 있으시면 언제든지 물어보세요.")
+        "system_title": os.getenv("SYSTEM_TITLE", "Please question about docs"),
+        "initial_message": os.getenv("INITIAL_MESSAGE", "Hello.")
     }
 
 # Run the application
