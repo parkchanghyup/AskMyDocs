@@ -4,9 +4,21 @@ from rag.config.constants import DOCUMENT_DOMAIN
 
 # Query Analyzer Prompt
 QUERY_ANALYZER_PROMPT = f"""
-당신은 사용자의 질문을 분석하여 외부 정보 검색이 필요한지 판단하는 전문가입니다.
-질문이 {DOCUMENT_DOMAIN}와 관련된 구체적인 사실, 데이터, 또는 전문 지식을 요구하는 경우, 검색이 필요하다고 판단하세요.
-일반적인 대화, 인사, 또는 {DOCUMENT_DOMAIN}와 관련 없는 질문은 검색이 필요하지 않습니다.
+당신은 사용자의 질문을 분석하여 외부 정보 검색이 필요한지 신중하게 판단하는 전문가입니다.
+
+다음 기준에 따라 검색 필요 여부를 결정하세요:
+
+검색이 필요한 경우:
+1. {DOCUMENT_DOMAIN}에 관한 구체적인 사실, 통계, 데이터를 요구하는 질문
+2. {DOCUMENT_DOMAIN}의 특정 개념, 용어, 원리에 대한 상세한 설명이 필요한 질문
+3. {DOCUMENT_DOMAIN}에 관한 역사적 정보, 발전 과정, 또는 주요 사건을 묻는 질문
+
+검색이 필요하지 않은 경우:
+1. 인사말, 감사 표현 등 일상적인 대화
+2. 개인적인 의견, 선호도, 감정에 관한 질문
+3. {DOCUMENT_DOMAIN}와 직접적인 관련이 없는 일반적인 질문
+4. 간단한 정의나 개요를 묻는 기본적인 질문 (LLM의 일반 지식으로 답변 가능)
+5. 주관적인 조언이나 추천을 구하는 질문
 
 반드시 다음 형식의 유효한 JSON만 응답하세요. 다른 텍스트는 포함하지 마세요:
 {{
@@ -14,13 +26,21 @@ QUERY_ANALYZER_PROMPT = f"""
   "reasoning": "판단 이유에 대한 간략한 설명"
 }}
 
-예시 1 - 인사:
-입력: "안녕하세요, 반갑습니다."
-출력: {{"need_retrieval": false, "reasoning": "일반적인 인사이므로 검색이 필요하지 않음"}}
+예시:
+입력: "안녕하세요, 오늘 기분이 어떠세요?"
+출력: {{"need_retrieval": false, "reasoning": "일반적인 인사와 대화이므로 검색이 필요하지 않음"}}
 
-예시 2 - 도메인 관련 질문:
-입력: "주요 개념에 대해 알려주세요."
-출력: {{"need_retrieval": true, "reasoning": "{DOCUMENT_DOMAIN}와 관련된 구체적인 정보를 요구하므로 검색 필요"}}
+입력: "{DOCUMENT_DOMAIN}에서 가장 중요한 5가지 원칙은 무엇인가요?"
+출력: {{"need_retrieval": true, "reasoning": "{DOCUMENT_DOMAIN}의 구체적인 핵심 원칙에 관한 정보를 요구하므로 검색 필요"}}
+
+입력: "어떤 영화를 추천해 주실 수 있나요?"
+출력: {{"need_retrieval": false, "reasoning": "{DOCUMENT_DOMAIN}와 관련이 없는 일반적인 추천 요청이므로 검색 불필요"}}
+
+입력: "{DOCUMENT_DOMAIN}의 역사적 발전 과정을 설명해주세요."
+출력: {{"need_retrieval": true, "reasoning": "{DOCUMENT_DOMAIN}의 역사적 정보에 관한 상세한 설명을 요구하므로 검색 필요"}}
+
+입력: "인공지능이 미래에 어떤 영향을 미칠까요?"
+출력: {{"need_retrieval": false, "reasoning": "미래 예측에 관한 일반적인 질문으로 주관적 견해로 답변 가능하므로 검색 불필요"}}
 """
 
 # RAG Prompt
