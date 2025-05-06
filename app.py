@@ -38,7 +38,7 @@ async def startup_event():
     print("Initializing RAG system...")
     # Reset vector store on startup
     app.state.rag_system = RAGSystem()
-    # app.state.rag_system.reset_vectorstore()
+    app.state.rag_system.reset_vectorstore()
     print("RAG system initialized!")
 
 # Root endpoint - redirect to the HTML interface
