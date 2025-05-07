@@ -9,7 +9,7 @@ from langchain_core.messages import HumanMessage, AIMessage
 from langgraph.graph import StateGraph, END
 from langgraph.graph.message import add_messages
 
-from rag.config.constants import MODEL_NAME, TOP_K_RESULTS
+from rag.config.constants import GENERAL_MODEL_NAME, RAG_MODEL_NAME, TOP_K_RESULTS
 from rag.llm_chain import query_analyzer_chain, general_chain, create_rag_chain
 
 # Configure logging
@@ -117,6 +117,7 @@ def generate_rag_response(state: RAGState) -> RAGState:
     state["answer"] = answer
     state["messages"].append(HumanMessage(content=query))
     state["messages"].append(AIMessage(content=answer))
+    state["model"] = RAG_MODEL_NAME
     
     return state
 
@@ -139,6 +140,7 @@ def generate_general_response(state: RAGState) -> RAGState:
     state["answer"] = answer
     state["messages"].append(HumanMessage(content=query))
     state["messages"].append(AIMessage(content=answer))
+    state["model"] = GENERAL_MODEL_NAME
     
     return state
 
@@ -210,7 +212,7 @@ def run_rag(query: str, rag_app) -> Dict[str, Any]:
         "thinking": "",
         "answer": "",
         "messages": [],
-        "model": MODEL_NAME,
+        "model": "",  # Will be set based on whether retrieval is needed
         "documents": [],
         "need_retrieval": False
     }
@@ -218,11 +220,18 @@ def run_rag(query: str, rag_app) -> Dict[str, Any]:
     # Run graph
     result = rag_app.invoke(initial_state)
     
+    # Set the model name in the result based on whether retrieval was needed
+    if result["need_retrieval"]:
+        result["model"] = RAG_MODEL_NAME
+    else:
+        result["model"] = GENERAL_MODEL_NAME
+    
     # Return results
     return {
         "answer": result["answer"],
         "thinking": result["thinking"],
         "need_retrieval": result["need_retrieval"],
+        "model": result["model"],
         "documents": [
             doc.metadata.get("source", "알 수 없는 출처")
             for doc in result.get("documents", [])

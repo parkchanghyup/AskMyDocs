@@ -7,7 +7,8 @@ from langchain_core.messages import HumanMessage, AIMessage
 from rag.config.constants import (
     API_KEY,
     BASE_URL,
-    MODEL_NAME,
+    GENERAL_MODEL_NAME,
+    RAG_MODEL_NAME,
     TEMPERATURE,
     MAX_TOKENS,
 )
@@ -48,7 +49,7 @@ def create_gemini_chain(system_prompt: str):
         
         # Call API
         response = client.chat.completions.create(
-            model=MODEL_NAME,
+            model=GENERAL_MODEL_NAME,
             messages=formatted_messages,
             temperature=TEMPERATURE,
             max_tokens=MAX_TOKENS
@@ -84,7 +85,7 @@ def create_rag_chain():
         
         # Call API
         response = client.chat.completions.create(
-            model=MODEL_NAME,
+            model=RAG_MODEL_NAME,
             messages=formatted_messages,
             temperature=TEMPERATURE,
             max_tokens=MAX_TOKENS

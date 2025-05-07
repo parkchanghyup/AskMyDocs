@@ -68,7 +68,8 @@ pip install -r requirements.txt
 Create a `.env` file in the project root with:
 ```
 GEMINI_API_KEY=your_api_key_here
-GEMINI_MODEL_NAME=gemini-2.0-flash-001
+GEMINI_GENERAL_MODEL=gemini-2.0-flash-001
+GEMINI_RAG_MODEL=gemini-2.0-pro-001
 SYSTEM_TITLE=main page title
 INITIAL_MESSAGE:assistant initail message
 DOCUMENT_DOMAIN:your docs domain

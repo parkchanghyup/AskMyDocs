@@ -9,7 +9,11 @@ load_dotenv()
 # API Configuration
 API_KEY = os.environ.get("GEMINI_API_KEY")
 BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
-MODEL_NAME = "models/" + os.environ.get("GEMINI_MODEL_NAME", "gemini-2.0-flash-001")
+
+# Model Configuration - separate models for different functions
+GENERAL_MODEL_NAME = "models/" + os.environ.get("GEMINI_GENERAL_MODEL", "gemini-2.0-flash-001")
+RAG_MODEL_NAME = "models/" + os.environ.get("GEMINI_RAG_MODEL", "gemini-2.0-pro-001")
+MODEL_NAME = GENERAL_MODEL_NAME  # For backward compatibility
 
 # Document Configuration
 DOCUMENT_DOMAIN = os.getenv("DOCUMENT_DOMAIN", "일반 문서")
