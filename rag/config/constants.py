@@ -11,8 +11,8 @@ API_KEY = os.environ.get("GEMINI_API_KEY")
 BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
 
 # Model Configuration - separate models for different functions
-GENERAL_MODEL_NAME = "models/" + os.environ.get("GEMINI_GENERAL_MODEL", "gemini-2.0-flash-001")
-RAG_MODEL_NAME = "models/" + os.environ.get("GEMINI_RAG_MODEL", "gemini-2.0-pro-001")
+GENERAL_MODEL_NAME = "models/" + os.environ.get("GEMINI_GENERAL_MODEL", "gemini-2.0-flash-lite")
+RAG_MODEL_NAME = "models/" + os.environ.get("GEMINI_RAG_MODEL", "gemini-2.5-flash-preview-04-17")
 MODEL_NAME = GENERAL_MODEL_NAME  # For backward compatibility
 
 # Document Configuration
